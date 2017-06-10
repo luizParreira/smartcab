@@ -391,6 +391,8 @@ class Environment(object):
 
             if(self.verbose == True): # Debugging
                 print "Environment.act(): Step data: {}".format(self.step_data)
+                print "Environment.act(): Trial data: {}".format(self.trial_data)
+                print
         return reward
 
     def compute_dist(self, a, b):
