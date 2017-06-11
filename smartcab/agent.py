@@ -1,3 +1,5 @@
+# vim: sta:et:sw=4:ts=4:sts=4
+
 import random
 import math
 from environment import Agent, Environment
@@ -52,6 +54,9 @@ class LearningAgent(Agent):
         inputs = self.env.sense(self)           # Visual input - intersection light and traffic
         deadline = self.env.get_deadline(self)  # Remaining deadline
 
+        #print "oncoming states: {}".format(inputs['oncoming'])
+       # print "left states:     {}".format(inputs['left'])
+        print "right states:    {}".format(inputs['right'])
         ###########
         ## TO DO ##
         ###########
@@ -146,7 +151,7 @@ def run():
     #   verbose     - set to True to display additional output from the simulation
     #   num_dummies - discrete number of dummy agents in the environment, default is 100
     #   grid_size   - discrete number of intersections (columns, rows), default is (8, 6)
-    env = Environment(verbose=True)
+    env = Environment()
 
     ##############
     # Create the driving agent
@@ -169,7 +174,7 @@ def run():
     #   display      - set to False to disable the GUI if PyGame is enabled
     #   log_metrics  - set to True to log trial and simulation results to /logs
     #   optimized    - set to True to change the default log file name
-    sim = Simulator(env, update_delay=0.01, display=True, log_metrics=True)
+    sim = Simulator(env)
 
     ##############
     # Run the simulator

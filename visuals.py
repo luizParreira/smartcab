@@ -1,3 +1,4 @@
+# vim: sta:et:sw=4:ts=4:sts=4
 ###########################################
 # Suppress matplotlib user warnings
 # Necessary for newer version of matplotlib
@@ -18,13 +19,11 @@ import ast
 
 
 def calculate_safety(data):
-	""" Calculates the safety rating of the smartcab during testing. """
-
-	good_ratio = data['good_actions'].sum() * 1.0 / \
-	(data['initial_deadline'] - data['final_deadline']).sum()
-
-	if good_ratio == 1: # Perfect driving
-		return ("A+", "green")
+    """ Calculates the safety rating of the smartcab during testing. """
+    good_ratio = data['good_actions'].sum() * 1.0 / \
+            (data['initial_deadline'] - data['final_deadline']).sum()
+    if good_ratio == 1: # Perfect driving
+        return ("A+", "green")
 	else: # Imperfect driving
 		if data['actions'].apply(lambda x: ast.literal_eval(x)[4]).sum() > 0: # Major accident
 			return ("F", "red")

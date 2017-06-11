@@ -1,3 +1,5 @@
+# vim: sta:et:sw=4:ts=4:sts=4
+
 import time
 import random
 import math
