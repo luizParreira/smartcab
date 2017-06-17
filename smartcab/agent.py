@@ -26,6 +26,9 @@ class LearningAgent(Agent):
         ###########
         # Set any additional class parameters as needed
 
+    def decay(self, epsilon):
+        return epsilon - 0.05
+
 
     def reset(self, destination=None, testing=False):
         """ The reset function is called at the beginning of each trial.
@@ -41,6 +44,12 @@ class LearningAgent(Agent):
         # Update epsilon using a decay function of your choice
         # Update additional class parameters as needed
         # If 'testing' is True, set epsilon and alpha to 0
+        if testing:
+            self.epsilon = 0
+            self.alpha = 0
+        else:
+            self.epsilon = self.decay(self.epsilon)
+
 
         return None
 
@@ -55,13 +64,13 @@ class LearningAgent(Agent):
         deadline = self.env.get_deadline(self)  # Remaining deadline
 
         #print "oncoming states: {}".format(inputs['oncoming'])
-       # print "left states:     {}".format(inputs['left'])
-        print "right states:    {}".format(inputs['right'])
+        #print "left states:     {}".format(inputs['left'])
+        #print "right states:    {}".format(inputs['right'])
         ###########
         ## TO DO ##
         ###########
         # Set 'state' as a tuple of relevant data for the agent
-        state = None
+        state = (deadline, waypoint, inputs)
 
         return state
 
@@ -159,7 +168,7 @@ def run():
     #   learning   - set to True to force the driving agent to use Q-learning
     #    * epsilon - continuous value for the exploration factor, default is 1
     #    * alpha   - continuous value for the learning rate, default is 0.5
-    agent = env.create_agent(LearningAgent)
+    agent = env.create_agent(LearningAgent, LearningAgent=True)
 
     ##############
     # Follow the driving agent
@@ -174,7 +183,7 @@ def run():
     #   display      - set to False to disable the GUI if PyGame is enabled
     #   log_metrics  - set to True to log trial and simulation results to /logs
     #   optimized    - set to True to change the default log file name
-    sim = Simulator(env)
+    sim = Simulator(env, update_delay=0.01, log_metrics=True)
 
     ##############
     # Run the simulator
