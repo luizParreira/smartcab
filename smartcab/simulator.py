@@ -121,7 +121,7 @@ class Simulator(object):
         # Get the primary agent
         a = self.env.primary_agent
 
-        total_trials = 1
+        total_trials = 10000
         testing = False
         trial = 1
 
@@ -131,7 +131,7 @@ class Simulator(object):
             if not testing:
                 if total_trials > 20: # Must complete minimum 20 training trials
                     if a.learning:
-                        if a.epsilon < tolerance: # assumes epsilon decays to 0
+                        if a.epsilon <= tolerance: # assumes epsilon decays to 0
                             testing = True
                             trial = 1
                     else:

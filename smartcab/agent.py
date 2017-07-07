@@ -10,7 +10,7 @@ class LearningAgent(Agent):
     """ An agent that learns to drive in the Smartcab world.
         This is the object you will be modifying. """
 
-    def __init__(self, env, learning=False, epsilon=1.0, alpha=0.6):
+    def __init__(self, env, learning=False, epsilon=0.99, alpha=0.6):
         super(LearningAgent, self).__init__(env)     # Set the agent in the evironment
         self.planner = RoutePlanner(self.env, self)  # Create a route planner
         self.valid_actions = self.env.valid_actions  # The set of valid actions
@@ -26,11 +26,9 @@ class LearningAgent(Agent):
         ###########
         # Set any additional class parameters as needed
 
-        self.k = 1
+        self.k = 0.0
         self.epsilon_decay = 0.995
-
-    def sigmoid(self, x):
-        return 1 / (1 + math.exp(-x))
+        random.seed(1177)
 
     def reset(self, destination=None, testing=False):
         """ The reset function is called at the beginning of each trial.
@@ -49,9 +47,9 @@ class LearningAgent(Agent):
         if testing:
             self.epsilon = 0
             self.alpha = 0
-            self.learning = False
         else:
-            self.epsilon = self.alpha ** self.k
+            self.epsilon = math.cos(0.01*self.k)
+            # self.epsilon = math.fabs(math.cos(self.alpha*self.k))
             self.k += 1
         return None
 
@@ -80,7 +78,6 @@ class LearningAgent(Agent):
                 waypoint,
                 inputs['light'],
                 inputs['left'],
-                inputs['right'],
                 inputs['oncoming']
                 )
 
@@ -96,17 +93,20 @@ class LearningAgent(Agent):
         ###########
         # Calculate the maximum Q-value of all actions for a given state
         max_values = []
-        max_value = (None, None)
+        max_value = 0
+        max_action = ''
 
         # 1st find the maximum Q-Value of a given state
         for action in self.Q[state].keys():
-            if max_value is (None, None) or self.Q[state].get(action) >= max_value[1]:
-                max_value = (action, self.Q[state][action])
+            value = self.Q[state].get(action)
+            if max_action is '' or value >= max_value:
+                max_value = value
+                max_action = action
 
         # 2nd find if there are any equal actions with same rewards
         for action in self.Q[state].keys():
-            if self.Q[state][action] == max_value[1]:
-                max_values.append((action, self.Q[state][action]))
+            if self.Q[state][action] == max_value:
+                max_values.append(action)
 
         # and we shall randomly choose the best action between them
         return random.choice(max_values)
@@ -127,7 +127,7 @@ class LearningAgent(Agent):
         # if the number of training cases are not large enough, the testing won't converge,
         # since its very likely that there won't be an entry created on the Q-table
         # for the current `state`
-        if not self.Q.get(state):
+        if self.learning and not self.Q.get(state):
             self.Q[state] = dict((key, 0.0) for key in self.valid_actions)
         return
 
@@ -146,10 +146,11 @@ class LearningAgent(Agent):
         self.state = state
         self.next_waypoint = self.planner.next_waypoint()
 
-        if random.random() < self.epsilon:
-            return random.choice(self.valid_actions)
+        action = random.choice(self.valid_actions)
+        if self.learning and random.random() > self.epsilon:
+            action = self.get_maxQ(state)
 
-        return self.get_maxQ(state)[0]
+        return action
 
     def learn(self, state, action, reward):
         """ The learn function is called after the agent completes an action and
@@ -167,8 +168,8 @@ class LearningAgent(Agent):
             return
 
         # Value iteration update rule
-        self.Q[state][action] *= (1.0 - self.alpha)
-        self.Q[state][action] += self.alpha * (reward + self.get_maxQ(state)[1])
+        old_value = self.Q[state][action]
+        self.Q[state][action] = (1.0 - self.alpha) * old_value + self.alpha * reward
         return
 
 
@@ -226,7 +227,7 @@ def run():
     # Flags:
     #   tolerance  - epsilon tolerance before beginning testing, default is 0.05
     #   n_test     - discrete number of testing trials to perform, default is 0
-    sim.run(n_test=10, tolerance=0.05)
+    sim.run(n_test=20, tolerance=0.01)
 
 
 if __name__ == '__main__':
