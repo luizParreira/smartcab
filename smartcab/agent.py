@@ -10,7 +10,7 @@ class LearningAgent(Agent):
     """ An agent that learns to drive in the Smartcab world.
         This is the object you will be modifying. """
 
-    def __init__(self, env, learning=False, epsilon=0.99, alpha=0.6):
+    def __init__(self, env, learning=False, epsilon=1.0, alpha=0.6):
         super(LearningAgent, self).__init__(env)     # Set the agent in the evironment
         self.planner = RoutePlanner(self.env, self)  # Create a route planner
         self.valid_actions = self.env.valid_actions  # The set of valid actions
@@ -26,7 +26,7 @@ class LearningAgent(Agent):
         ###########
         # Set any additional class parameters as needed
 
-        self.k = 0.0
+        self.k = 0
         self.epsilon_decay = 0.995
         random.seed(1177)
 
@@ -48,6 +48,10 @@ class LearningAgent(Agent):
             self.epsilon = 0
             self.alpha = 0
         else:
+            # Linear decaying function
+           # self.epsilon -= 0.05
+            # Improved decaying function
+            #self.epsilon *= self.epsilon_decay
             self.epsilon = math.cos(0.01*self.k)
             # self.epsilon = math.fabs(math.cos(self.alpha*self.k))
             self.k += 1
@@ -70,8 +74,6 @@ class LearningAgent(Agent):
         ###########
         ## TO DO ##
         ###########
-        # Make 'inputs' hashable by transforming it into a bunch of tuples pairs
-        #inputs = tuple([(key, inputs[key]) for key in inputs.keys()])
         # Set 'state' as a tuple of relevant data for the agent
 
         state = (
@@ -100,15 +102,13 @@ class LearningAgent(Agent):
         for action in self.Q[state].keys():
             value = self.Q[state].get(action)
             if max_action is '' or value >= max_value:
+                if max_action is '' or value == max_value:
+                    max_values.append(action)
+                else:
+                    max_values = [action]
                 max_value = value
                 max_action = action
 
-        # 2nd find if there are any equal actions with same rewards
-        for action in self.Q[state].keys():
-            if self.Q[state][action] == max_value:
-                max_values.append(action)
-
-        # and we shall randomly choose the best action between them
         return random.choice(max_values)
 
 
@@ -121,12 +121,6 @@ class LearningAgent(Agent):
         # When learning, check if the 'state' is not in the Q-table
         # If it is not, create a new dictionary for that state
         #   Then, for each action available, set the initial Q-value to 0.0
-
-
-        # The first conditional is stated on the comments on line :113, however,
-        # if the number of training cases are not large enough, the testing won't converge,
-        # since its very likely that there won't be an entry created on the Q-table
-        # for the current `state`
         if self.learning and not self.Q.get(state):
             self.Q[state] = dict((key, 0.0) for key in self.valid_actions)
         return
@@ -220,14 +214,14 @@ def run():
     #   display      - set to False to disable the GUI if PyGame is enabled
     #   log_metrics  - set to True to log trial and simulation results to /logs
     #   optimized    - set to True to change the default log file name
-    sim = Simulator(env, update_delay=0, log_metrics=True, optimized=True)
+    sim = Simulator(env, update_delay=2, display=True, log_metrics=False, optimized=True)
 
     ##############
     # Run the simulator
     # Flags:
     #   tolerance  - epsilon tolerance before beginning testing, default is 0.05
     #   n_test     - discrete number of testing trials to perform, default is 0
-    sim.run(n_test=20, tolerance=0.01)
+    sim.run(n_test=30, tolerance=0.05)
 
 
 if __name__ == '__main__':
