@@ -15163,7 +15163,8 @@ EREREU2UJCsiIiIiIqKJ/j+/f+hKaN4NZQAAAABJRU5ErkJggg==
 </ul>
 <p>We can then use the rule of products to calculate the total number of combinations this would bring us:</p>
 
-<pre><code>3 * 2 * 4 * 4</code></pre>
+<pre><code>3 * 2 * 4 * 4 == 96
+# 96 total state space size</code></pre>
 <p>Learning a policy for each possible state given a limited number of training trials will be a difficult task. However, the agent can learn the most optimal policies given the features outlined above given enough training trials.</p>
 
 </div>
@@ -18322,6 +18323,7 @@ $$ \epsilon_{k+1} = \cos(0.01k)$$<ul>
 <div class="text_cell_render border-box-sizing rendered_html">
 <p><strong>Answer:</strong></p>
 <p>The Smartcab in this project is a constantly moving object during the trials, if we had to calculate all the possible future rewards for all the next actions necessary for us to reach our destination, we would have to be constantly looking up large amounts of state/actions everytime we had to make an action, what would certainly make the cab's decision making slower, and since the cab has a limited amount of time to make a decision, it could make the cab reach some sort of local minima, where it can't really find the optimal policy for the future state/actions in enough time. In addition to that, the environment is also constantly changing in a way that is nearly impossible to predict, all the agents will act upon the consequences of its own actions in the simulation, and we would have to know all the agents positions in advance, in order to be able to correctly know what next states will give us the best reward.</p>
+<p>Also, the agent's view is limited to the information given in the states it has already visited, it does not have a full view of the entire environment, it learns by taking each individual action at a specific state and receiving a reward for it, what makes it useless for the agent to make projections for future rewards at states it hasn't already visited or even states it has visited where the purpose of being in that state it was somewhat different, since the agent will have many different objectives (destinations) over a training and testing session. Lastly, its also iportant to note that the destination itself changes a lot over training and testing, therefore if we use what the agent already knows about the states it had been we could get into the problem of having Q-values used to get to destination X influencing when it is meant to go to destination Y.</p>
 
 </div>
 </div>
